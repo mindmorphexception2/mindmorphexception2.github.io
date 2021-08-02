@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<head>
+	<title> Robot & Princess </title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Crimson+Text&display=swap" rel="stylesheet">
+
+<style>
+#my_canvas {
+	border:1px solid gray;
+}
+
+body {
+	background-color: black;
+}
+
+#status {
+	color: white;
+	font-family: consolas;
+	font-size: 15px;
+}
+
+#instruction {
+	color: white;
+	font-family: "Book Antiqua", serif;
+}
+
+</style>
+
+<script>
+
+canvas_h = 750;
+canvas_w = 1000;
+
+robo_x = 225;
+robo_y = 23;
+robo_h = 0;
+robo_w = 0;
+step = 20;
+
+robo_health = 200;
+
+feta_x = 450;
+feta_y = 300;
+feta_h = 0;
+feta_w = 0;
+
+computer_x = 20;
+computer_y = 54;
+computer_h = 0;
+computer_w = 0;
+
+book_x = 870;
+book_y = 504;
+book_h = 0;
+book_w = 0;
+
+flower_x = 340;
+flower_y = 590;
+flower_h = 0;
+flower_w = 0;
+
+princess_x = 650;
+princess_y = 50;
+princess_h = 0;
+princess_w = 0;
+
+var img = null;
+var img_feta = null;
+var img_computer = null;
+var book_img = null;
+var flower_img = null;
+var princess_img = null;
+var img_hands = null;
+
+now_feta = false;
+now_computer = false;
+now_book = false;
+now_flower = false;
+now_princess = false;
+now_holding_hands = false;
+
+function intersects(x, y, h, w) {
+	//console.log(robo_x, robo_y, robo_h, robo_w);
+	//console.log(x, y, h, w);
+
+	c_left = Math.abs(robo_x - x);
+	c_right = Math.abs(x - robo_x);
+	c_up = Math.abs(robo_y - y);
+	c_down =  Math.abs(y - robo_y);
+
+	lim = 50;
+	console.log(c_left, c_right, c_up, c_down);
+
+	collides_x = (c_left < lim) || (c_right < lim);
+	collides_y = (c_up < lim) || (c_down < lim);  
+	console.log(collides_y, collides_x);
+	return collides_x && collides_y;
+}
+
+
+function checkKey(e) {
+	if(now_holding_hands) return;
+
+    e = e || window.event;
+
+    if (e.keyCode == '13' && !now_holding_hands && !now_book && !now_flower && !now_feta && !now_computer && !now_princess) {
+        now_feta = true;
+        $("#instruction").html("You have just had a vaccination and are feeling unwell. You should eat some feta cheese to restore your health!");
+        drawRobo();
+        return;
+    }
+
+    if (e.keyCode == '38') {
+        // up arrow
+        robo_y = (robo_y - step + canvas_h) % canvas_h;	
+    }
+    else if (e.keyCode == '40') {
+        // down arrow
+        robo_y = (robo_y + step) % canvas_h;
+    }
+    else if (e.keyCode == '37') {
+       // left arrow
+       robo_x = (robo_x - step + canvas_w) % canvas_w
+    }
+    else if (e.keyCode == '39') {
+       // right arrow
+       robo_x = (robo_x + step) % canvas_w;
+    }
+    robo_health -= 1;
+
+
+    if (now_feta && intersects (feta_x, feta_y, feta_h, feta_w)) {
+    	robo_health += 10000;
+    	now_feta = false;
+    	$("#instruction").html("You feel refreshed. Like any responsible robot, you should check your computer now!");
+    	now_computer = true;
+    }
+
+    if (now_computer && intersects (computer_x, computer_y, computer_h, computer_w)) {
+    	now_computer = false;
+    	$("#instruction").html("Your data is luckily still private and secure. You can relax by reading a book.");
+    	now_book = true;
+    }
+    if (now_book && intersects (book_x, book_y, book_h, book_w)) {
+    	now_book = false;
+    	$("#instruction").html("In the book your find a note.<br><i>Dear Robot, <br> I would also very much like to hold hands with you. <br>Liebste Grüße, <br> The Princess</i><br> You should go see her! Better pick up some flowers along the way!");
+    	now_flower = true;
+    }
+    if (now_flower && intersects (flower_x, flower_y, flower_h, flower_w)) {
+    	now_flower = false;
+    	$("#instruction").html("You are now ready to meet her. Hurry up, she is waiting for you!");
+    	now_princess = true;
+    }
+    if (now_princess && intersects (princess_x, princess_y, princess_h, princess_w)) {
+    	now_princess = false;
+    	$("#instruction").html("You and the princess are now holding hands. ♡");
+    	now_holding_hands = true;
+    	robo_health *= 12781923;
+    }
+
+    drawRobo();
+
+}
+
+document.onkeydown = checkKey;
+
+
+function drawRobo() {
+	var canvas = document.getElementById("my_canvas");
+	var ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#b3d9ff";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	if(!now_holding_hands) ctx.drawImage(img, robo_x, robo_y);
+
+	warning = "";
+	if (robo_health < 0) warning = " [you have walked too much, but are still alive becase you have superpowers!]"
+	$("#status").html("Health: " + robo_health + warning);
+
+	if(now_feta) ctx.drawImage(img_feta, feta_x, feta_y);
+	if(now_computer) ctx.drawImage(img_computer, computer_x, computer_y);
+	if(now_book) ctx.drawImage(img_book, book_x, book_y);
+	if(now_flower) ctx.drawImage(img_flower, flower_x, flower_y);
+	if(now_princess) ctx.drawImage(img_princess, princess_x, princess_y);
+	if(now_holding_hands) ctx.drawImage(img_hands, princess_x, princess_y);
+}
+
+function load() {
+	var canvas = document.getElementById("my_canvas");
+	canvas.height = canvas_h;
+	canvas.width = canvas_w;
+	var ctx = canvas.getContext("2d");
+	ctx.imageSmoothingEnabled = false;
+
+	img = new Image();  
+	img.addEventListener('load', function() {
+		robo_h = this.height;
+		robo_w = this.width;
+		drawRobo(); 
+	}, false);
+	img.src = 'robot1.png';
+
+	img_feta = new Image();  
+	img_feta.addEventListener('load', function() {
+		feta_h = this.height;
+		feta_w = this.width;
+		drawRobo(); 
+	}, false);
+	img_feta.src = 'feta.png'; 
+
+	img_computer = new Image();  
+	img_computer.addEventListener('load', function() {
+		computer_h = this.height;
+		computer_w = this.width;
+		drawRobo(); 
+	}, false);
+	img_computer.src = 'laptop.png'; 
+
+	img_book = new Image();  
+	img_book.addEventListener('load', function() {
+		book_h = this.height;
+		book_w = this.width;
+		drawRobo(); 
+	}, false);
+	img_book.src = 'book.png';
+
+	img_flower = new Image();  
+	img_flower.addEventListener('load', function() {
+		flower_h = this.height;
+		flower_w = this.width;
+		drawRobo(); 
+	}, false);
+	img_flower.src = 'flower.png';
+
+	img_princess = new Image();  
+	img_princess.addEventListener('load', function() {
+		princess_h = this.height;
+		princess_w = this.width;
+		drawRobo(); 
+	}, false);
+	img_princess.src = 'princess.png';	
+
+	img_hands = new Image();  
+	img_hands.addEventListener('load', function() {
+		hands_h = this.height;
+		hands_w = this.width;
+		drawRobo(); 
+	}, false);
+	img_hands.src = 'holding-hands.png';	
+}
+
+
+
+</script>	
+
+</head>
+
+<body onload="load()"> 
+	
+	<canvas id="my_canvas"> </canvas>
+
+	<div id="instruction">Welcome to the computational universe. Press enter to start.</div>
+	<br><br>
+	<div id="status"></div>
+
+</body>
+
+</html> 
