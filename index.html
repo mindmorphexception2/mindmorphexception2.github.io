@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-	<title> Robot & Princess </title>
+	<title> Robot & Princess (v.pre-alpha.1.616255(18)×10^{−35} </title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -175,7 +175,7 @@ function drawRobo() {
 	if(!now_holding_hands) ctx.drawImage(img, robo_x, robo_y);
 
 	warning = "";
-	if (robo_health < 0) warning = " [you have walked too much, but are still alive becase you have superpowers!]"
+	if (robo_health < 0) warning = " [you have walked too much, but are still alive because you have superpowers!]"
 	$("#status").html("Health: " + robo_health + warning);
 
 	if(now_feta) ctx.drawImage(img_feta, feta_x, feta_y);
